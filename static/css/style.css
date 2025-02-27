@@ -1,0 +1,114 @@
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #f8f9fa;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+/* Estilização geral do formulário */
+form {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    margin: 20px 0;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin: 10px 0 5px;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+button {
+    background: green;
+    color: white;
+    border: none;
+    padding: 12px;
+    width: 100%;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+    margin-top: 10px;
+}
+
+button:hover {
+    background: darkgreen;
+}
+
+/* Links estilizados */
+a {
+    display: inline-block;
+    margin: 10px;
+    color: green;
+    font-weight: bold;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+a:hover {
+    color: darkgreen;
+    text-decoration: underline;
+}
+
+/* Estilização da tabela do carrinho */
+.carrinho-table {
+    width: 90%;
+    max-width: 800px;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.carrinho-table th, .carrinho-table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: center;
+}
+
+.carrinho-table th {
+    background-color: #28a745;
+    color: white;
+    font-size: 18px;
+}
+
+.quantidade-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.quantidade-controls button {
+    padding: 5px 10px;
+    font-size: 16px;
+    margin: 0 5px;
+    border: none;
+    background: #28a745;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.quantidade-controls button:hover {
+    background: #1e7e34;
+}
