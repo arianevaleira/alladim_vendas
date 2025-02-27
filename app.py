@@ -4,7 +4,6 @@ from database import db
 from datetime import datetime
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 
-
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SECRET_KEY'] = 'ULTRAMEGADIFICIL'
@@ -66,15 +65,48 @@ def cadastro():
             return redirect(url_for('login'))
     return render_template('cadastro_user.html')
 
+
+def verificar_tipo_usuario_email(email):
+    # Verifica se o email pertence a um cliente
+    cliente = Cliente.query.filter_by(email=email).first()
+    if cliente:
+        return "cliente"
+    
+    # Verifica se o email pertence a um vendedor
+    vendedor = Vendedor.query.filter_by(email=email).first()
+    if vendedor:
+        return "vendedor"
+    
+    return None
+
 @app.route('/cadastrar_produto', methods=['GET', 'POST'])
 @login_required
 def cadastro_produtos():
+ 
+    vendedor = Vendedor.query.get(current_user.id) 
+    if not vendedor:
+        flash("Você não tem permissão para cadastrar produtos.")
+        return redirect(url_for('loja'))
+
+    # Checa produtos que precisam ser repostos (não esta funcionando muito bem)
+    produtos_para_repor = Produto.query.filter(Produto.estoque <= 0).all()
+    if produtos_para_repor:
+        flash("Atenção: Produtos que precisam ser repostos: " + ", ".join([p.nome for p in produtos_para_repor]))
+
     if request.method == 'POST':
         nome = request.form['nome']
         preco = float(request.form['preco'])
         estoque = int(request.form['estoque'])
+
+        # Verifica se o produto já existe antes de cadastrar
+        if Produto.query.filter_by(nome=nome).first():
+            flash("Produto já cadastrado!")
+            return redirect(url_for('cadastro_produtos'))
+
         Produto.cadastrar_produto(nome, preco, estoque)
-        return "Produto cadastrado com sucesso"
+        flash("Produto cadastrado com sucesso")
+        return redirect(url_for('cadastro_produtos'))  # Redireciona após o cadastro
+
     return render_template('cadastro_produto.html')
 
 @app.route('/loja', methods=['GET', 'POST'])
@@ -82,22 +114,33 @@ def cadastro_produtos():
 def loja():
     produtos = Produto.lista_produtos()
     return render_template('loja.html', produtos=produtos)
-
-
-
+    
 @app.route('/adicionar_ao_carrinho/<int:produto_id>', methods=['POST'])
 @login_required
 def adicionar_ao_carrinho(produto_id):
+    produto = Produto.query.get(produto_id)
+
+    if produto.estoque <= 0:
+        flash("Produto indisponível.")
+        return redirect(url_for('loja'))
+    
     carrinho_item = Carrinho.query.filter_by(cliente_id=current_user.id, produto_id=produto_id).first()
     
     if carrinho_item:
-        carrinho_item.quantidade += 1
+        if carrinho_item.quantidade < produto.estoque:
+            carrinho_item.quantidade += 1
+        else:
+            flash("Quantidade máxima atingida para este produto.")
     else:
-        carrinho_item = Carrinho(cliente_id=current_user.id, produto_id=produto_id)
-        db.session.add(carrinho_item)
-
+        if produto.estoque > 0:  # Verifica novamente
+            carrinho_item = Carrinho(cliente_id=current_user.id, produto_id=produto_id, quantidade=1)
+            db.session.add(carrinho_item)
+        else:
+            flash("Produto esgotado no momento.")
+    
     db.session.commit()
     return redirect(url_for('loja'))
+
 
 @app.route('/carrinho')
 @login_required
@@ -106,16 +149,27 @@ def carrinho():
     total = sum(item.produto.preco * item.quantidade for item in itens_carrinho)
     return render_template('carrinho.html', carrinho2=itens_carrinho, total=total)
 
+
 @app.route('/alterar_quantidade/<int:item_id>/<action>', methods=['POST'])
 @login_required
 def alterar_quantidade(item_id, action):
     carrinho_item = Carrinho.query.get(item_id)
-    
+
     if action == 'increment':
-        carrinho_item.quantidade += 1
-    elif action == 'decrement' and carrinho_item.quantidade >= 1:
-        carrinho_item.quantidade -= 1
+        if carrinho_item.quantidade < carrinho_item.produto.estoque:
+            carrinho_item.quantidade += 1
+        else:
+            flash("Quantidade máxima atingida.")
+    elif action == 'decrement':
+        if carrinho_item.quantidade > 1:
+            carrinho_item.quantidade -= 1
+        else:
+            db.session.delete(carrinho_item)
+            flash("Produto removido do carrinho.")
     
+    db.session.commit()
+    return redirect(url_for('carrinho'))
+
     db.session.commit()
     return redirect(url_for('carrinho'))
 
@@ -135,8 +189,6 @@ def finalizar_pedido():
 
     db.session.commit()
     return redirect(url_for('loja'))
-
-
 
 @app.route('/logout')
 @login_required
