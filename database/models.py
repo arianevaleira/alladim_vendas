@@ -62,6 +62,13 @@ class Produto(db.Model):
     @classmethod
     def lista_produtos(cls):
         return cls.query.all()
+    
+    @classmethod
+    def alterar_estoque(cls, id, novo_estoque):
+        produto = cls.query.get(id)
+        if produto is not None:
+            produto.estoque = novo_estoque
+            db.session.commit()
 
 
 
