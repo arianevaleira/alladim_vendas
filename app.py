@@ -1,5 +1,5 @@
 from database.models import *
-from flask import Flask, request, render_template, redirect, url_for, flash
+from flask import Flask, request, render_template, redirect, url_for, flash, session
 from database import db
 from datetime import datetime
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
@@ -28,25 +28,6 @@ def load_user(user_id):
 def index():
     return render_template('index.html')
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        email = request.form['email']
-        senha = request.form['senha']
-    
-        cliente = Cliente.query.filter_by(email=email).first()
-        if cliente and cliente.check_password(senha):
-            login_user(cliente)
-            return redirect(url_for('loja'))
-        
-        vendedor = Vendedor.query.filter_by(email=email).first()
-        if vendedor and vendedor.check_password(senha):
-            login_user(vendedor)
-            return redirect(url_for('cadastro_produtos'))
-        
-        flash('Email ou senha inválidos')
-    
-    return render_template('login.html')
 
 @app.route('/cadastrar_usuario', methods=['GET', 'POST'])
 def cadastro():
@@ -66,48 +47,54 @@ def cadastro():
     return render_template('cadastro_user.html')
 
 
-def verificar_tipo_usuario_email(email):
-    # Verifica se o email pertence a um cliente
-    cliente = Cliente.query.filter_by(email=email).first()
-    if cliente:
-        return "cliente"
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        senha = request.form['senha']
     
-    # Verifica se o email pertence a um vendedor
-    vendedor = Vendedor.query.filter_by(email=email).first()
-    if vendedor:
-        return "vendedor"
+        cliente = Cliente.query.filter_by(email=email).first()
+        if cliente and cliente.check_password(senha):
+            # Guarda o tipo do usuário na sessão
+            session['user_tipo'] = "cliente"
+            login_user(cliente)
+            return redirect(url_for('loja'))
+        
+        vendedor = Vendedor.query.filter_by(email=email).first()
+        if vendedor and vendedor.check_password(senha):
+            session['user_tipo'] = "vendedor"
+            login_user(vendedor)
+            return redirect(url_for('home_vendedor'))
+        
+        flash('Email ou senha inválidos')
     
-    return None
+    return render_template('login.html')
+
+
 
 @app.route('/cadastrar_produto', methods=['GET', 'POST'])
 @login_required
 def cadastro_produtos():
- 
-    vendedor = Vendedor.query.get(current_user.id) 
-    if not vendedor:
-        flash("Você não tem permissão para cadastrar produtos.")
-        return redirect(url_for('loja'))
+    # Verifica se o usuário da sessão é um vendedor
+    if session['user_tipo'] != "vendedor":
+        return redirect('login')
+        
+    else:
+        if request.method == 'POST':
+            nome = request.form['nome']
+            preco = float(request.form['preco'])
+            estoque = int(request.form['estoque'])
 
-    # Checa produtos que precisam ser repostos (não esta funcionando muito bem)
-    produtos_para_repor = Produto.query.filter(Produto.estoque <= 0).all()
-    if produtos_para_repor:
-        flash("Atenção: Produtos que precisam ser repostos: " + ", ".join([p.nome for p in produtos_para_repor]))
+            # Verifica se o produto já existe antes de cadastrar
+            if Produto.query.filter_by(nome=nome).first():
+                flash("Produto já cadastrado!")
+                return redirect(url_for('cadastro_produtos'))
 
-    if request.method == 'POST':
-        nome = request.form['nome']
-        preco = float(request.form['preco'])
-        estoque = int(request.form['estoque'])
+            Produto.cadastrar_produto(nome, preco, estoque)
+            flash("Produto cadastrado com sucesso")
+            return redirect(url_for('home_vendedor'))  # Redireciona após o cadastro
 
-        # Verifica se o produto já existe antes de cadastrar
-        if Produto.query.filter_by(nome=nome).first():
-            flash("Produto já cadastrado!")
-            return redirect(url_for('cadastro_produtos'))
-
-        Produto.cadastrar_produto(nome, preco, estoque)
-        flash("Produto cadastrado com sucesso")
-        return redirect(url_for('cadastro_produtos'))  # Redireciona após o cadastro
-
-    return render_template('cadastro_produto.html')
+        return render_template('cadastro_produto.html')
 
 @app.route('/loja', methods=['GET', 'POST'])
 @login_required
@@ -170,8 +157,6 @@ def alterar_quantidade(item_id, action):
     db.session.commit()
     return redirect(url_for('carrinho'))
 
-    db.session.commit()
-    return redirect(url_for('carrinho'))
 
 @app.route('/finalizar_pedido')
 @login_required
@@ -179,8 +164,21 @@ def finalizar_pedido():
     itens_carrinho = Carrinho.query.filter_by(cliente_id=current_user.id).all()
     total = sum(item.produto.preco * item.quantidade for item in itens_carrinho)
     data = datetime.now()
+
+    # Cria um novo pedido
     novo_pedido = Pedido(cliente_id=current_user.id, total=total, data=data)
     db.session.add(novo_pedido)
+
+    for item in itens_carrinho:
+        # Atualiza o estoque do produto
+        produto = Produto.query.get(item.produto_id)
+        if produto:
+            produto.estoque -= item.quantidade  # Reduz o estoque conforme a quantidade no carrinho
+
+            # Verifica se o estoque não fica negativo
+            if produto.estoque < 0:
+                return "Estoque insuficiente para finalizar o pedido!", 400
+
     db.session.commit()
 
     # Limpa o carrinho após finalizar o pedido
@@ -189,6 +187,31 @@ def finalizar_pedido():
 
     db.session.commit()
     return redirect(url_for('loja'))
+
+
+@app.route('/home_vendedor')
+@login_required
+def home_vendedor():
+    return render_template ('home_vendedor.html')
+
+@app.route('/lista_reposicao', methods=['GET','POST'])
+@login_required
+def lista_reposicao():
+    if session['user_tipo'] != "vendedor":
+        return redirect('login')
+    else:
+        # Checa produtos que precisam ser repostos
+        produtos_para_repor = Produto.query.filter(Produto.estoque == 0).all()
+        return render_template ('lista_reposicao.html', produtos_para_repor=produtos_para_repor)
+
+@app.route('/repor_produto/<int:id>', methods=['POST'])
+@login_required
+def repor_produto(id):
+        if request.method == 'POST':
+            novo_estoque = request.form['qntd']
+            Produto.alterar_estoque(id, novo_estoque)
+        return redirect(url_for('lista_reposicao'))
+
 
 @app.route('/logout')
 @login_required
