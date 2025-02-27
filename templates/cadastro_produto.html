@@ -9,11 +9,11 @@
 <body>
     <form action="{{url_for('cadastro_produtos')}}" method="post" class="formularios">
         <label for="">Nome do Produto:</label>
-        <input type="text" name="nome">
+        <input type="text" name="nome" required>
         <label for="">Preço do Produto:</label>
-        <input type="number" name="preco" step="0.01">
+        <input type="number" name="preco" step="0.01" required>
         <label for="">Estoque Inicial:</label>
-        <input type="number" name="estoque">
+        <input type="number" name="estoque" required>
         <button>Cadastrar Produto</button>
     </form>
     <a href="{{url_for('logout')}}">Logout</a>
