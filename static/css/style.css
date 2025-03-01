@@ -178,8 +178,150 @@ a:hover {
     height: fit-content;
     border-radius: 30px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    color: var(--cor-fundo);
 }
 
 .formularios > button {
     margin-top: 20px;
+}
+
+#div-cadastro-login{
+    width: 50%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    margin-top: 50px;
+}
+
+.cadastro-login{
+    padding: 20px;
+    background-color: var(--cor-principal);
+    color: var(--cor-fundo);
+}
+
+.cadastro-login:hover{
+    color: var(--cor-texto);
+    text-decoration: none;
+}
+
+.navbar{
+    background-color: var(--cor-principal);
+    height: 100px;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    margin-bottom: 50px;
+}
+
+.navbar > a{
+    color: var(--cor-fundo);
+    width: 300px;
+    text-align: center;
+}
+
+#opcoes-vendedor, #botao-finalizar{
+    height: 400px;
+    width: 30%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    margin: 50px;
+}
+
+#opcoes-vendedor > a, #botao-finalizar > a{
+    padding: 20px;
+    background-color: var(--cor-principal);
+    color: var(--cor-fundo);
+    width: 100%;
+    text-align: center;
+}
+
+#opcoes-vendedor > a:hover{
+    color: var(--cor-texto);
+    text-decoration: none;
+}
+
+.botao-form{
+    padding: 0;
+    height: 30px;
+    width: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.botao-form > button{
+    margin: 0px;
+}
+
+.botao-form > button:hover{
+    transform: none; 
+}
+
+#lista-reposicao{
+    list-style-type: none;
+    margin-top: 40px;
+}
+
+#produto-reposicao{
+    margin: 10px 0px;
+    display: flex;
+    flex-direction: column;
+    height: 200px;
+    justify-content: space-evenly;
+}
+
+#produto-reposicao > label{
+    color: var(--cor-fundo);
+}
+
+
+@media only screen and (max-width: 768px) {
+    #div-cadastro-login{
+        flex-direction: column;
+    }
+
+}
+
+@media only screen and (max-width: 360px) {
+    h1{
+        margin-bottom: 25px;
+    }
+
+    #div-cadastro-login{
+        width: 75%;
+    }
+
+
+    .formularios{
+        width: 100%;
+    }
+
+    #botao-finalizar{
+        width: 75%;
+    }
+
+    #opcoes-vendedor{
+        margin-top: 0;
+        width: 75%;
+    }
+
+    .navbar{
+        padding: 20px;
+    }
+
+    h2{
+        margin: 0px 20px;
+    }
+
+    #formulario-produtos{
+        width: 91%;
+    }
+
+    #tabela-carrinho{
+        width: 90%;
+    }
 }
