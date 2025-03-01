@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <title>Produtos</title>
+    <style>
+        body {
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">    
+        <a href="{{ url_for('cart.carrinho') }}">Meu Carrinho</a>
+        <a href="{{ url_for('auth.logout') }}">Logout</a>
+    </div>
+    
+    <h1>PRODUTOS</h1>
+    <ul class="produtos">
+        {% for produto in produtos %}
+            <li class="produto">{{ produto.nome }} - R$ {{ produto.preco }} 
+                {% if produto.estoque <= 0 %}
+                    <span style="color: red;">(Indisponível)</span>
+                {% else %}
+                    <form action="{{ url_for('cart.adicionar_ao_carrinho', produto_id=produto.id) }}" method="post">
+                        <button type="submit">Adicionar ao carrinho</button>
+                    </form>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

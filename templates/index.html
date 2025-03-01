@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <title>Document</title>
+</head>
+<body>
+    <h1 style="margin-top: 100px;">Bem vindo ao Alladim</h1>
+    <h2>O melhor site de compra e vendas</h2>
+    <div id="div-cadastro-login">
+        <a href="{{ url_for('auth.cadastro') }}" class="cadastro-login">Cadastre-se</a>
+        <a href="{{ url_for('auth.login') }}" class="cadastro-login">Fazer Login</a>        
+    </div>
+</body>
+</html>

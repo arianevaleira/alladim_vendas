@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <title>Document</title>
+</head>
+<body>
+    <div class="navbar">
+        <a href="{{ url_for('product.home_vendedor') }}">Voltar</a>
+        <br>
+        <a href="{{ url_for('product.cadastro_produtos') }}">Cadastrar Novo Produto</a>
+        <br>
+        <a href="{{ url_for('auth.logout') }}">Logout</a>
+    </div>
+
+    <h2>Atenção! Produtos para repor:</h2>
+    <ul id="lista-reposicao">
+        {% for produto in produtos_para_repor %}
+            <li>
+                <form action="{{ url_for('product.repor_produto', id=produto.id) }}" method="POST" id="produto-reposicao">
+                    <label for="produto">{{ produto.nome }}</label>
+                    <input type="number" placeholder="quantidade" name="qntd" required>
+                    <button type="submit">Repor</button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

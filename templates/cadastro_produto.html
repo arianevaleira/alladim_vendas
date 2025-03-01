@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <title>Cadastrar Produto</title>
+    <style>
+        body {
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="{{ url_for('product.home_vendedor') }}">Voltar</a>
+        <br>
+        <a href="{{ url_for('product.lista_reposicao') }}">Repor Produto</a>
+        <br>
+        <a href="{{ url_for('auth.logout') }}">Logout</a>
+    </div>
+
+    <form action="{{ url_for('product.cadastro_produtos') }}" method="post" class="formularios" id="formulario-produtos">
+        <label for="">Nome do Produto:</label>
+        <input type="text" name="nome" required>
+        <label for="">Preço do Produto:</label>
+        <input type="number" name="preco" step="0.01" required>
+        <label for="">Estoque Inicial:</label>
+        <input type="number" name="estoque" required>
+        <button>Cadastrar Produto</button>
+    </form>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <title>Cadastrar Usuário</title>
+</head>
+<body>
+    <h1 style="margin-bottom: 35px;">Cadastro</h1>
+    <form action="{{ url_for('auth.cadastro') }}" method="post" class="formularios">
+        <label for="">Nome:</label>
+        <input type="text" name="nome" required>
+        <label for="">Email:</label>
+        <input type="text" name="email" required>
+        <label for="">Senha:</label>
+        <input type="password" name="senha" required>
+        <label for="">O que você deseja fazer no nosso site?</label>
+        <select name="tipo" id="">
+            <option value="cliente">Comprar produtos</option>
+            <option value="vendedor">Vender produtos</option>
+        </select>
+        <button>Cadastrar</button>
+    </form>
+
+    <p style="margin-top: 35px;">Já possui conta? <a href="{{ url_for('auth.login') }}">Faça Login</a></p>
+</body>
+</html>

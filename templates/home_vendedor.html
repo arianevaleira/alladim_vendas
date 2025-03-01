@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <title>Document</title>
+    <style>
+        body {
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar" style="color: #121212;">
+        <h1>Bem-vindo, {{ vendedor }}</h1>
+    </div>
+
+    <div id="opcoes-vendedor">
+        <a href="{{ url_for('product.cadastro_produtos') }}">Cadastrar Novo Produto</a>
+        <br>
+        <a href="{{ url_for('product.lista_reposicao') }}">Repor Produto</a>
+        <br>
+        <a href="{{ url_for('auth.logout') }}">Logout</a>
+    </div>
+</body>
+</html>
